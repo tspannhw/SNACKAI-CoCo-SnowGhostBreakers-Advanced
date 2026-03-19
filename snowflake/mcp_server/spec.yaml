@@ -1,0 +1,22 @@
+spec:
+  container:
+    - name: ghost-mcp-server
+      image: /ghost_detection/app/images/ghost_mcp_server:latest
+      env:
+        SNOWFLAKE_DATABASE: GHOST_DETECTION
+        SNOWFLAKE_SCHEMA: APP
+        SNOWFLAKE_WAREHOUSE: GHOST_DETECTION_WH
+      readinessProbe:
+        port: 8000
+        path: /health
+      resources:
+        requests:
+          memory: 1Gi
+          cpu: 0.5
+        limits:
+          memory: 2Gi
+          cpu: 1
+  endpoint:
+    - name: mcp-endpoint
+      port: 8000
+      public: true
