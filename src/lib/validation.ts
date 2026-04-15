@@ -32,4 +32,21 @@ export const ghostUploadSchema = z.object({
 
 export type GhostUploadData = z.infer<typeof ghostUploadSchema>;
 
-export { GHOST_TYPES, THREAT_LEVELS, EVIDENCE_TYPES, STATUSES, FREQUENCIES };
+const SWEEP_RATES = ['Slow', 'Medium', 'Fast', 'Variable'] as const;
+
+export const spiritBoxUploadSchema = z.object({
+  location_name: z.string().min(1, 'Location name is required').max(500),
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+  recording_datetime: z.string().min(1, 'Recording date/time is required'),
+  frequency_mhz: z.number().min(0).max(2000).optional().default(100),
+  sweep_rate: z.enum(SWEEP_RATES).optional().default('Medium'),
+  device_model: z.string().max(200).optional().default(''),
+  sighting_id: z.string().max(50).optional().default(''),
+  ghost_id: z.string().max(50).optional().default(''),
+  notes: z.string().max(5000).optional().default(''),
+});
+
+export type SpiritBoxUploadData = z.infer<typeof spiritBoxUploadSchema>;
+
+export { GHOST_TYPES, THREAT_LEVELS, EVIDENCE_TYPES, STATUSES, FREQUENCIES, SWEEP_RATES };

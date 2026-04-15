@@ -47,3 +47,8 @@ export function executeQuery(conn: snowflake.Connection, sql: string, binds?: an
     });
   });
 }
+
+export function putFileToStage(conn: snowflake.Connection, localPath: string, stagePath: string): Promise<any[]> {
+  const sql = `PUT 'file://${localPath}' '${stagePath}' AUTO_COMPRESS=FALSE OVERWRITE=TRUE`;
+  return executeQuery(conn, sql);
+}

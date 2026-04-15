@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import GhostParticles from '@/components/GhostParticles';
 import Link from 'next/link';
-import { Ghost, Upload, MapPin, Home } from 'lucide-react';
+import { Ghost, Upload, MapPin, Home, Radio } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'SnowGhostBreakers - Paranormal Data Upload',
@@ -27,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <NavLink href="/" icon={<Home className="w-4 h-4" />} label="Dashboard" />
                 <NavLink href="/upload" icon={<Upload className="w-4 h-4" />} label="Upload" />
                 <NavLink href="/sightings" icon={<MapPin className="w-4 h-4" />} label="Sightings" />
+                <NavLink href="/spirit-box" icon={<Radio className="w-4 h-4" />} label="Spirit Box" />
               </div>
             </div>
           </div>

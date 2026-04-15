@@ -19,18 +19,19 @@ $(cyan "SnowGhostBreakers — $APP_NAME manager")
 Usage: $0 <command>
 
 Commands:
-  install     Install npm dependencies
-  setup       Full setup: install deps, check env, build
-  start       Start the dev server (background, port $PORT)
-  stop        Stop the running dev server
-  restart     Stop then start
-  status      Show whether the server is running
-  build       Production build
-  logs        Tail the dev server log
-  test        Run test suite
-  validate    Validate .env configuration
-  clean       Remove node_modules, .next, logs
-  help        Show this help message
+  install         Install npm dependencies
+  setup           Full setup: install deps, check env, build
+  start           Start the dev server (background, port $PORT)
+  stop            Stop the running dev server
+  restart         Stop then start
+  status          Show whether the server is running
+  build           Production build
+  logs            Tail the dev server log
+  test            Run test suite
+  validate        Validate .env configuration
+  clean           Remove node_modules, .next, logs
+  snowflake-stop  Suspend all Snowflake warehouses, Cortex Search, tasks, dynamic tables
+  help            Show this help message
 EOF
 }
 
@@ -195,17 +196,85 @@ cmd_clean() {
   green "Cleaned."
 }
 
+cmd_snowflake_stop() {
+  cyan "=== Stopping All Snowflake Items ==="
+
+  # Resolve Snowflake connection details from .env
+  local env_file="$APP_DIR/.env"
+  local sf_account sf_user sf_role sf_warehouse sf_key_path
+  if [[ -f "$env_file" ]]; then
+    sf_account=$(grep "^SNOWFLAKE_ACCOUNT=" "$env_file" | cut -d= -f2-)
+    sf_user=$(grep "^SNOWFLAKE_USER=" "$env_file" | cut -d= -f2-)
+    sf_role=$(grep "^SNOWFLAKE_ROLE=" "$env_file" | cut -d= -f2-)
+    sf_warehouse=$(grep "^SNOWFLAKE_WAREHOUSE=" "$env_file" | cut -d= -f2-)
+  fi
+
+  # SQL commands to stop everything
+  local sql_cmds
+  sql_cmds=$(cat <<'SQLEOF'
+-- Suspend all warehouses in GHOST_DETECTION
+ALTER WAREHOUSE IF EXISTS GHOST_DETECT_WH SUSPEND;
+ALTER WAREHOUSE IF EXISTS INGEST SUSPEND;
+
+-- Suspend Cortex Search services
+ALTER CORTEX SEARCH SERVICE IF EXISTS GHOST_DETECTION.APP.SPIRIT_BOX_SEARCH SET TARGET_LAG = 'DOWNSTREAM';
+
+-- Suspend all tasks in GHOST_DETECTION
+ALTER TASK IF EXISTS GHOST_DETECTION.APP.REFRESH_GHOST_STATS SUSPEND;
+
+-- Note: Dynamic tables across all databases are already suspended.
+-- To suspend any active ones, run:
+-- ALTER DYNAMIC TABLE <db>.<schema>.<table> SUSPEND;
+
+-- Verify status
+SELECT 'Warehouses' AS item_type, NAME, STATE FROM SNOWFLAKE.ACCOUNT_USAGE.WAREHOUSES WHERE DELETED IS NULL AND STATE = 'STARTED';
+SQLEOF
+)
+
+  cyan "SQL commands to execute:"
+  echo "$sql_cmds"
+  echo
+
+  # Try to execute via SnowSQL if available
+  if command -v snowsql &>/dev/null; then
+    cyan "Executing via SnowSQL..."
+    echo "$sql_cmds" | snowsql \
+      -a "${sf_account:-}" \
+      -u "${sf_user:-}" \
+      -r "${sf_role:-ACCOUNTADMIN}" \
+      -w "${sf_warehouse:-GHOST_DETECT_WH}" \
+      -d GHOST_DETECTION \
+      -s APP \
+      --noup \
+      -o friendly=false \
+      -o timing=false 2>/dev/null && green "Snowflake items suspended." || yellow "SnowSQL execution failed. Run the SQL manually in Snowsight."
+  elif command -v snow &>/dev/null; then
+    cyan "Executing via Snowflake CLI (snow)..."
+    echo "$sql_cmds" | while IFS= read -r line; do
+      [[ -z "$line" || "$line" == --* ]] && continue
+      snow sql -q "$line" 2>/dev/null || true
+    done
+    green "Snowflake items suspended."
+  else
+    yellow "Neither snowsql nor snow CLI found."
+    yellow "Copy and run the above SQL in Snowsight to stop all Snowflake items."
+  fi
+
+  green "=== Snowflake Stop Complete ==="
+}
+
 case "${1:-help}" in
-  install)  cmd_install ;;
-  setup)    cmd_setup ;;
-  start)    cmd_start ;;
-  stop)     cmd_stop ;;
-  restart)  cmd_restart ;;
-  status)   cmd_status ;;
-  build)    cmd_build ;;
-  logs)     cmd_logs ;;
-  test)     cmd_test ;;
-  validate) cmd_validate ;;
-  clean)    cmd_clean ;;
-  help|*)   usage ;;
+  install)        cmd_install ;;
+  setup)          cmd_setup ;;
+  start)          cmd_start ;;
+  stop)           cmd_stop ;;
+  restart)        cmd_restart ;;
+  status)         cmd_status ;;
+  build)          cmd_build ;;
+  logs)           cmd_logs ;;
+  test)           cmd_test ;;
+  validate)       cmd_validate ;;
+  clean)          cmd_clean ;;
+  snowflake-stop) cmd_snowflake_stop ;;
+  help|*)         usage ;;
 esac

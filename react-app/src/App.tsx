@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Link } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import { Ghost } from 'lucide-react';
 
@@ -8,6 +8,10 @@ const Sightings = lazy(() => import('@/pages/Sightings'));
 const Analytics = lazy(() => import('@/pages/Analytics'));
 const Map = lazy(() => import('@/pages/Map'));
 const Settings = lazy(() => import('@/pages/Settings'));
+const Capture = lazy(() => import('@/pages/Capture'));
+const MediaDashboard = lazy(() => import('@/pages/MediaDashboard'));
+const MediaDetail = lazy(() => import('@/pages/MediaDetail'));
+const Search = lazy(() => import('@/pages/Search'));
 
 // Loading fallback component
 function LoadingFallback(): JSX.Element {
@@ -35,21 +39,30 @@ function Layout({ children }: { children: React.ReactNode }): JSX.Element {
             <span className="text-xl font-bold text-white">SnowGhost Breakers</span>
           </div>
           <div className="flex items-center gap-6">
-            <a href="/" className="text-sm text-ghost-purple-300 hover:text-white transition-colors">
+            <Link to="/" className="text-sm text-ghost-purple-300 hover:text-white transition-colors">
               Dashboard
-            </a>
-            <a href="/sightings" className="text-sm text-ghost-purple-300 hover:text-white transition-colors">
+            </Link>
+            <Link to="/sightings" className="text-sm text-ghost-purple-300 hover:text-white transition-colors">
               Sightings
-            </a>
-            <a href="/analytics" className="text-sm text-ghost-purple-300 hover:text-white transition-colors">
+            </Link>
+            <Link to="/capture" className="text-sm text-ghost-purple-300 hover:text-white transition-colors">
+              Capture
+            </Link>
+            <Link to="/media" className="text-sm text-ghost-purple-300 hover:text-white transition-colors">
+              Media
+            </Link>
+            <Link to="/search" className="text-sm text-ghost-purple-300 hover:text-white transition-colors">
+              Search
+            </Link>
+            <Link to="/analytics" className="text-sm text-ghost-purple-300 hover:text-white transition-colors">
               Analytics
-            </a>
-            <a href="/map" className="text-sm text-ghost-purple-300 hover:text-white transition-colors">
+            </Link>
+            <Link to="/map" className="text-sm text-ghost-purple-300 hover:text-white transition-colors">
               Map
-            </a>
-            <a href="/settings" className="text-sm text-ghost-purple-300 hover:text-white transition-colors">
+            </Link>
+            <Link to="/settings" className="text-sm text-ghost-purple-300 hover:text-white transition-colors">
               Settings
-            </a>
+            </Link>
           </div>
         </div>
       </nav>
@@ -65,6 +78,10 @@ function App(): JSX.Element {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/sightings" element={<Sightings />} />
+          <Route path="/capture" element={<Capture />} />
+          <Route path="/media" element={<MediaDashboard />} />
+          <Route path="/media/:id" element={<MediaDetail />} />
+          <Route path="/search" element={<Search />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/map" element={<Map />} />
           <Route path="/settings" element={<Settings />} />
