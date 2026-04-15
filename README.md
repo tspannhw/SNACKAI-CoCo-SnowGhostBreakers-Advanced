@@ -2,12 +2,22 @@
 
 Ghost sighting data management application for the **GHOST_DETECTION.APP** Snowflake schema. Built for the [Neo4j NODES AI conference demo](https://neo4j.com/nodes-ai/agenda/ghost-busting-with-neo4j-graph-analytics-in-snowflake/).
 
+
+<img width="2247" height="1587" alt="image" src="https://github.com/user-attachments/assets/4d639326-13cf-4c48-b7df-98cb6cbc8875" />
+
+<img width="2247" height="1584" alt="image" src="https://github.com/user-attachments/assets/a426cd62-815d-4a60-af06-734b87e8fe67" />
+
+
 ## Stack
 
 - **Next.js 14** (App Router) + React 18 + TypeScript
 - **TailwindCSS** with dark paranormal theme (Creepster font, ghost-green/purple)
 - **Framer Motion** animations, **MapLibre GL** interactive map
 - **Snowflake** via snowflake-sdk (key-pair auth)
+
+
+<img width="2183" height="1822" alt="image" src="https://github.com/user-attachments/assets/1552f6c9-2bef-4ef6-9c9a-5d4a1acd6cb9" />
+
 
 ## Features
 
@@ -16,6 +26,10 @@ Ghost sighting data management application for the **GHOST_DETECTION.APP** Snowf
 | `/` | Dashboard — live stats, recent sightings, entity breakdown |
 | `/upload` | 4-step wizard form to report ghost sightings |
 | `/sightings` | Interactive map with 1000 sightings, filters by type/threat |
+
+
+<img width="2248" height="1829" alt="image" src="https://github.com/user-attachments/assets/5eedf92d-ea93-4133-99b8-43fbe504439c" />
+
 
 ## Quick Start
 
